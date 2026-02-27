@@ -885,7 +885,7 @@ export default function CustomerPortal() {
         {/* Footer */}
         <div className="shrink-0 py-3 text-center">
           <p className="text-[9px] font-mono text-zinc-700">
-            Powered by <span className="text-accent-500/50">Sentinel AI</span> · RAG + Human-in-the-Loop
+            © 2026 <span className="text-zinc-600">Aziq Rauf</span> · Sentinel Support · All rights reserved
           </p>
         </div>
       </div>
