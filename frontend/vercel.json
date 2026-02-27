@@ -3,8 +3,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "regions": ["sin1"],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@sentinel_api_url"
-  }
+  "regions": ["sin1"]
 }
