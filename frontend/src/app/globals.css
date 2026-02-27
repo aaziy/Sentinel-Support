@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-zinc-950 text-zinc-100;
+  }
+
+  /* ── Selection ── */
+  ::selection {
+    background: rgba(124, 92, 252, 0.2);
+    color: #fff;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-white/[0.06] rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-white/[0.12]; }
+}
+
+@layer components {
+  /* ── Card surfaces ── */
+  .card-surface {
+    @apply bg-zinc-900/80 backdrop-blur-xl border border-white/[0.05] rounded-xl shadow-panel;
+  }
+  .card-surface-dense {
+    @apply bg-zinc-900/80 backdrop-blur-xl border border-white/[0.05] rounded-lg shadow-elevation-1;
+  }
+
+  /* ── Crisis card — pulsing red for critical states ── */
+  .card-crisis {
+    @apply bg-zinc-900/80 backdrop-blur-xl rounded-lg shadow-elevation-1;
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    animation: crisis-border-pulse 2s ease-in-out infinite;
+  }
+
+  /* ── Stat card backgrounds by status tint ── */
+  .stat-card-default  { @apply bg-zinc-900/80; }
+  .stat-card-warning  { background: linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(24,24,27,0.8) 100%); }
+  .stat-card-success  { background: linear-gradient(135deg, rgba(52,211,153,0.04) 0%, rgba(24,24,27,0.8) 100%); }
+  .stat-card-danger   { background: linear-gradient(135deg, rgba(244,63,94,0.06) 0%, rgba(24,24,27,0.8) 100%); }
+  .stat-card-info     { background: linear-gradient(135deg, rgba(124,92,252,0.04) 0%, rgba(24,24,27,0.8) 100%); }
+
+  /* ── Markdown prose inside chat bubbles ── */
+  .prose-chat {
+    @apply text-[13px] leading-relaxed;
+  }
+  .prose-chat p {
+    @apply mb-1.5 last:mb-0;
+  }
+  .prose-chat strong {
+    @apply font-semibold text-white;
+  }
+  .prose-chat em {
+    @apply italic text-zinc-300;
+  }
+  .prose-chat code {
+    @apply bg-white/[0.06] px-1.5 py-0.5 rounded text-xs font-mono;
+    color: #9b7eff;
+  }
+  .prose-chat pre {
+    @apply bg-zinc-950 border border-white/[0.05] rounded-lg p-3 my-2 overflow-x-auto;
+  }
+  .prose-chat pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose-chat ul {
+    @apply list-disc pl-5 mb-2 space-y-0.5;
+  }
+  .prose-chat ol {
+    @apply list-decimal pl-5 mb-2 space-y-0.5;
+  }
+  .prose-chat li {
+    @apply text-zinc-300 text-[13px];
+  }
+  .prose-chat a {
+    @apply underline underline-offset-2 transition-colors;
+    color: #9b7eff;
+  }
+  .prose-chat a:hover {
+    color: #b8a1ff;
+  }
+  .prose-chat blockquote {
+    @apply border-l-2 pl-3 italic text-zinc-400 my-2;
+    border-color: rgba(124, 92, 252, 0.3);
+  }
+  .prose-chat h1,
+  .prose-chat h2,
+  .prose-chat h3 {
+    @apply font-semibold text-white mt-3 mb-1 tracking-tight;
+  }
+
+  /* ── Crisis banner ── */
+  .crisis-banner {
+    background: linear-gradient(90deg, rgba(244,63,94,0.08) 0%, rgba(244,63,94,0.03) 50%, rgba(244,63,94,0.08) 100%);
+    border-top: 1px solid rgba(244,63,94,0.15);
+    border-bottom: 1px solid rgba(244,63,94,0.15);
+  }
+
+  /* ── SLA timer styles ── */
+  .sla-safe    { @apply text-emerald-400; }
+  .sla-warning { @apply text-amber-400; }
+  .sla-breach  { @apply text-red-400 font-semibold; }
+
+  /* ── Diagonal warning stripes (for broken Escalation card) ── */
+  .warning-stripes {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(244,63,94,0.04) 6px,
+      rgba(244,63,94,0.04) 12px
+    );
+  }
+
+  /* ── BREACH badge — loudest element on ticket row ── */
+  .badge-breach {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: rgba(244,63,94,0.15);
+    color: #fb7185;
+    border: 1.5px solid rgba(244,63,94,0.35);
+    box-shadow: 0 0 16px 2px rgba(244,63,94,0.15);
+    animation: breach-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes breach-pulse {
+    0%, 100% { box-shadow: 0 0 16px 2px rgba(244,63,94,0.15); }
+    50%      { box-shadow: 0 0 24px 6px rgba(244,63,94,0.3); }
+  }
+}
+
+@layer utilities {
+  /* ── Live pulse ── */
+  .animate-live-pulse {
+    animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+
+  /* ── Crisis border pulse ── */
+  @keyframes crisis-border-pulse {
+    0%, 100% { border-color: rgba(244, 63, 94, 0.15); box-shadow: 0 0 0 0 rgba(244,63,94,0); }
+    50%      { border-color: rgba(244, 63, 94, 0.40); box-shadow: 0 0 20px 2px rgba(244,63,94,0.12); }
+  }
+
+  /* ── Thinking dots ── */
+  .animate-thinking-1 { animation: thinking 1.4s ease-in-out infinite; }
+  .animate-thinking-2 { animation: thinking 1.4s ease-in-out 0.2s infinite; }
+  .animate-thinking-3 { animation: thinking 1.4s ease-in-out 0.4s infinite; }
+  @keyframes thinking {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── Stagger children entrance ── */
+  .stagger-1 { animation-delay: 0ms; }
+  .stagger-2 { animation-delay: 80ms; }
+  .stagger-3 { animation-delay: 160ms; }
+  .stagger-4 { animation-delay: 240ms; }
+
+  /* ── Accent glow text ── */
+  .text-glow-accent {
+    text-shadow: 0 0 20px rgba(124,92,252,0.3);
+  }
+
+  /* ── Crisis panel overlay ── */
+  .crisis-overlay {
+    position: relative;
+  }
+  .crisis-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(244,63,94,0.04) 0%, transparent 40%);
+    z-index: 0;
+  }
+}
