@@ -513,13 +513,19 @@ function InputPill({
 }) {
   return (
     <form onSubmit={onSubmit} className="w-full max-w-[640px] mx-auto">
-      {/* Ambient glow behind the pill */}
-      <div className="relative">
+      <div className="relative group">
+        {/* Outer diffused glow — always visible, intensifies on focus */}
         <div
-          className="absolute inset-0 rounded-3xl blur-2xl opacity-20 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 100%, #7C5CFC 0%, transparent 70%)" }}
+          className="absolute -inset-[3px] rounded-[22px] opacity-60 blur-xl transition-opacity duration-500 group-focus-within:opacity-100 pointer-events-none"
+          style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7C5CFC 50%, #a855f7 100%)" }}
         />
-        <div className="relative bg-zinc-900/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl shadow-elevation-3 overflow-hidden transition-all duration-300 focus-within:border-[rgba(124,92,252,0.25)] focus-within:shadow-glow-accent">
+        {/* Gradient border ring — the 'Collaborate on Pro' glow effect */}
+        <div
+          className="absolute -inset-[1.5px] rounded-[20px] pointer-events-none"
+          style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7C5CFC 50%, #a855f7 100%)" }}
+        />
+        {/* Inner container — sits on top of the gradient border */}
+        <div className="relative bg-[#0e0e11] rounded-[19px] overflow-hidden">
           {/* Main input area */}
           <div className="flex items-start gap-3 px-5 pt-4 pb-2">
             <textarea
@@ -558,7 +564,7 @@ function InputPill({
             )}
           </div>
 
-          {/* Bottom toolbar — no divider */}
+          {/* Bottom toolbar */}
           <div className="flex items-center justify-end px-4 pb-3">
             <div className="flex items-center gap-3">
               {/* Agent badge */}
@@ -781,9 +787,20 @@ export default function CustomerPortal() {
       <div className="flex flex-col h-full">
         {/* Top nav — minimal, just brand + admin link */}
         <div className="shrink-0 flex items-center justify-between px-6 py-4 relative z-10">
-          <div className="flex items-center gap-2.5">
-            <SentinelMark size={22} glow />
-            <span className="text-[12px] font-mono text-zinc-600">Sentinel Support</span>
+          <div className="relative group/logo">
+            {/* Gradient border glow on logo pill */}
+            <div
+              className="absolute -inset-[1px] rounded-xl pointer-events-none opacity-70"
+              style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7C5CFC 60%, #a855f7 100%)" }}
+            />
+            <div className="relative flex items-center gap-2.5 bg-[#0e0e11] rounded-[11px] px-3 py-1.5">
+              <SentinelMark size={20} glow />
+              <span className="text-[13px] font-semibold text-zinc-200 tracking-tight">Sentinel Support</span>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-breathing absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+            </div>
           </div>
           <a
             href="/login"
@@ -882,13 +899,17 @@ export default function CustomerPortal() {
     <div className="flex flex-col h-full">
       {/* Compact header — brand + live dot + new chat */}
       <header className="shrink-0 flex items-center justify-between px-6 py-3 border-b border-white/[0.05]">
-        <div className="flex items-center gap-3">
-          <SentinelMark size={22} glow />
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-display font-semibold text-zinc-300">Sentinel Support</span>
-            <span className="relative flex h-1.5 w-1.5">
+        <div className="relative">
+          <div
+            className="absolute -inset-[1px] rounded-xl pointer-events-none opacity-70"
+            style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7C5CFC 60%, #a855f7 100%)" }}
+          />
+          <div className="relative flex items-center gap-2.5 bg-[#0e0e11] rounded-[11px] px-3 py-1.5">
+            <SentinelMark size={18} glow />
+            <span className="text-[13px] font-semibold text-zinc-200 tracking-tight">Sentinel Support</span>
+            <span className="relative flex h-2 w-2">
               <span className="animate-breathing absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
           </div>
         </div>
