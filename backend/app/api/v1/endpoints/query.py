@@ -25,7 +25,7 @@ from app.schemas.ticket import (
     SaveToKBRequest,
 )
 from app.core.graph.agent_graph import support_graph  # shared graph + checkpointer
-from app.services.supabase_service import _get_client, _get_embedder, upsert_documents
+from app.services.supabase_service import _get_client, upsert_documents
 from app.services.email_service import send_resolution_email
 
 router = APIRouter()
@@ -306,8 +306,9 @@ async def save_to_kb(payload: SaveToKBRequest):
     # Build the document content: combine original question + curated answer
     doc_content = f"Q: {original_query}\nA: {payload.content}"
 
-    # Generate embedding
-    embedding = _get_embedder().encode(doc_content).tolist()
+    # Generate a zero embedding (text search is used instead of vector search
+    # on Render free tier where HuggingFace is unreachable)
+    embedding = [0.0] * 384  # placeholder 384-dim zero vector
 
     # Build metadata
     doc_meta = {

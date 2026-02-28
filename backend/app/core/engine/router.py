@@ -13,40 +13,12 @@ Other routes: "retrieval" (KB lookup) | "direct_response" (greeting/farewell)
 from __future__ import annotations
 
 import re
-from sentence_transformers import SentenceTransformer, util
+import logging
 from langchain_core.messages import HumanMessage
 
 from app.core.engine.state import AgentState
 
-# ── Intent exemplars (embedded once, cached) ──────────────
-_RETRIEVAL_EXEMPLARS = [
-    "How do I reset my password?",
-    "What is the API rate limit?",
-    "How do I set up two-factor authentication?",
-    "Explain how billing invoices work.",
-    "Why is my webhook failing?",
-    "Troubleshoot my integration error.",
-    "What are the steps to configure SSO?",
-]
-
-_ESCALATION_EXEMPLARS = [
-    "I need to speak to a real person.",
-    "Let me talk to a human agent.",
-    "This is urgent, escalate this immediately.",
-    "I want to file a complaint.",
-    "I've been waiting too long, get me a manager.",
-    "Your bot is useless, connect me to support.",
-    "I need a refund and your system won't let me.",
-]
-
-_DIRECT_EXEMPLARS = [
-    "Hello",
-    "Thanks for the help!",
-    "What time is it?",
-    "Who are you?",
-    "Goodbye",
-    "Tell me a joke.",
-]
+logger = logging.getLogger(__name__)
 
 # Hard keyword patterns for instant escalation-intent detection
 _ESCALATION_PATTERNS = re.compile(
@@ -54,58 +26,44 @@ _ESCALATION_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
-# Lazy singleton — share with supabase_service to avoid duplicate loads
-_model: SentenceTransformer | None = None
-_exemplar_embeddings: dict | None = None
-
-
-def _get_model() -> SentenceTransformer:
-    global _model
-    if _model is None:
-        from app.services.supabase_service import _get_embedder
-        _model = _get_embedder()
-    return _model
-
-
-def _get_exemplar_embeddings():
-    global _exemplar_embeddings
-    if _exemplar_embeddings is None:
-        model = _get_model()
-        _exemplar_embeddings = {
-            "retrieval": model.encode(_RETRIEVAL_EXEMPLARS, convert_to_tensor=True),
-            "human_escalation": model.encode(_ESCALATION_EXEMPLARS, convert_to_tensor=True),
-            "direct_response": model.encode(_DIRECT_EXEMPLARS, convert_to_tensor=True),
-        }
-    return _exemplar_embeddings
+# Greeting / farewell patterns
+_GREETING_PATTERNS = re.compile(
+    r"^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy|sup|yo|greetings)\b",
+    re.IGNORECASE,
+)
+_FAREWELL_PATTERNS = re.compile(
+    r"\b(bye|goodbye|thanks|thank\s*you|see\s*you|take\s*care|cheers)\b",
+    re.IGNORECASE,
+)
+_SIMPLE_PATTERNS = re.compile(
+    r"^(who\s+are\s+you|what\s+are\s+you|what\s+time|tell\s+me\s+a\s+joke|how\s+are\s+you)\b",
+    re.IGNORECASE,
+)
 
 
 def route_intent(query: str) -> str:
-    """Classify a user query into retrieval / direct_response / human_escalation / clarify_escalation."""
-    # 1. Fast keyword check for escalation
-    if _ESCALATION_PATTERNS.search(query):
+    """Classify a user query into retrieval / direct_response / human_escalation / clarify_escalation.
+
+    Uses keyword-based matching (no ML model required — works on Render free tier
+    where HuggingFace downloads are blocked).
+    """
+    q = query.strip()
+
+    # 1. Escalation keywords
+    if _ESCALATION_PATTERNS.search(q):
         return "clarify_escalation"
 
-    # 2. Semantic similarity against exemplar banks
-    model = _get_model()
-    exemplars = _get_exemplar_embeddings()
-    q_emb = model.encode(query, convert_to_tensor=True)
+    # 2. Greetings / farewells / simple queries
+    if _GREETING_PATTERNS.search(q) or _FAREWELL_PATTERNS.search(q) or _SIMPLE_PATTERNS.search(q):
+        return "direct_response"
 
-    scores = {}
-    for intent, embs in exemplars.items():
-        cos_scores = util.cos_sim(q_emb, embs)[0]
-        scores[intent] = float(cos_scores.max())
+    # 3. Short vague queries (1-2 words, not a question) → direct
+    words = q.split()
+    if len(words) <= 2 and not q.endswith("?"):
+        return "direct_response"
 
-    best_intent = max(scores, key=scores.get)  # type: ignore[arg-type]
-
-    # 3. Fallback: if nothing scores well, assume retrieval
-    if scores[best_intent] < 0.35:
-        return "retrieval"
-
-    # Semantic escalation match → also ask for clarification first
-    if best_intent == "human_escalation":
-        return "clarify_escalation"
-
-    return best_intent
+    # 4. Everything else → retrieval (KB lookup)
+    return "retrieval"
 
 
 def route_query(state: AgentState) -> AgentState:
