@@ -445,20 +445,31 @@ function EscalationCard({
     if (!ticket.id) return;
     setResuming(true);
     setResumeError(null);
-    try {
-      await axios.post(`${API_URL}/api/v1/query/resume`, {
-        ticket_id: ticket.id,
-        feedback: feedback.trim() || "Approved by admin",
-      });
-      // If customer provided email, mark as emailed
-      if (customerEmail) setEmailSent(true);
-      setDone(true);
-      setTimeout(onResolved, 400);
-    } catch {
-      setResumeError("Resume failed — is the backend running?");
-    } finally {
-      setResuming(false);
+    const maxRetries = 2;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) setResumeError(`Retrying… (attempt ${attempt + 1})`);
+        await axios.post(`${API_URL}/api/v1/query/resume`, {
+          ticket_id: ticket.id,
+          feedback: feedback.trim() || "Approved by admin",
+        }, { timeout: 90_000 });
+        // If customer provided email, mark as emailed
+        if (customerEmail) setEmailSent(true);
+        setResumeError(null);
+        setDone(true);
+        setTimeout(onResolved, 400);
+        return;
+      } catch (err) {
+        if (attempt === maxRetries) {
+          const msg = axios.isAxiosError(err)
+            ? err.code === "ECONNABORTED" ? "Request timed out — backend may be waking up, try again"
+            : err.response ? `Failed (${err.response.status})` : "Cannot reach backend — is Render awake?"
+            : "Resume failed";
+          setResumeError(msg);
+        }
+      }
     }
+    setResuming(false);
   };
 
   const handleResendEmail = async () => {
@@ -469,7 +480,7 @@ function EscalationCard({
       const { data } = await axios.post(`${API_URL}/api/v1/query/resend-email`, {
         ticket_id: ticket.id,
         feedback: feedback.trim() || undefined,
-      });
+      }, { timeout: 90_000 });
       if (data.ok) {
         setEmailSent(true);
       } else {
