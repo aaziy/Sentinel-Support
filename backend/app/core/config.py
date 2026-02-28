@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from typing import List
 
 
@@ -7,6 +8,21 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_SECRET_KEY: str = "change-me"
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_origins(cls, v):
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            v = v.strip()
+            # Handle JSON array format: ["a","b"]
+            if v.startswith("["):
+                import json
+                return json.loads(v)
+            # Handle comma-separated format: a,b
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
 
     # Rate limiting (per IP)
     RATE_LIMIT: str = "60/minute"
