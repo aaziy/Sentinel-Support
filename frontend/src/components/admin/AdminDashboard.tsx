@@ -1201,11 +1201,11 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
                   ))}
                 </AnimatePresence>
               </div>
-            )
+            )}
           </section>
         )}
 
-        {!loading && escalated.length === 0 && !error && (
+        {!loading && escalated.length === 0 && !error && !searchQuery.trim() && (
           <div className="card-surface-dense border-dashed py-6 flex flex-col items-center gap-2 text-center">
             <CheckCircle2 className="w-5 h-5 text-emerald-500/20" />
             <p className="text-[11px] text-zinc-500 font-mono">No pending escalations</p>
