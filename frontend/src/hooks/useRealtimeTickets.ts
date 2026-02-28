@@ -123,8 +123,9 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
     channelRef.current = channel;
 
     // Fallback polling: if Realtime doesn't connect within 8s, poll every 15s
+    // Skip polling while a resolve is in-flight to avoid overwriting optimistic updates
     const pollTimer = setInterval(() => {
-      if (channelRef.current?.state !== "joined") {
+      if (channelRef.current?.state !== "joined" && !resolvingRef.current) {
         fetchTickets();
       }
     }, 15_000);
@@ -144,8 +145,11 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
     };
   }, [fetchTickets]);
 
+  const resolvingRef = useRef(false);
+
   // ── Resolve: optimistic update + Supabase write ────────
   const markResolved = useCallback(async (ticketId: string) => {
+    resolvingRef.current = true;
     const now = new Date().toISOString();
     // Optimistic update first for instant UI feedback
     setTickets((prev) =>
@@ -163,6 +167,7 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
       .eq("id", ticketId);
     // If DB write failed, revert optimistic update
     if (error) {
+      console.error("[markResolved] Supabase write failed:", error);
       setTickets((prev) =>
         prev.map((t) =>
           t.id === ticketId
@@ -171,6 +176,7 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
         )
       );
     }
+    resolvingRef.current = false;
   }, []);
 
   // ── Derived lists ──────────────────────────────────────

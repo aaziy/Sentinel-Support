@@ -30,6 +30,7 @@ import {
   X,
   Mail,
   MailCheck,
+  Search,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
@@ -638,6 +639,7 @@ function EscalationCard({
               )}
 
               <button
+                type="button"
                 onClick={handleResume}
                 disabled={resuming}
                 className={clsx(
@@ -875,7 +877,7 @@ function KBHealthPanel() {
 }
 
 /* ── MAIN ────────────────────────────────────────────────── */
-export default function AdminDashboard() {
+export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: string }) {
   const {
     pending,
     resolved,
@@ -929,6 +931,18 @@ export default function AdminDashboard() {
       (t) => t.status === "awaiting_human" || t.status === "open"
     );
 
+    // Text search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (t) =>
+          (t.query ?? "").toLowerCase().includes(q) ||
+          (t.response ?? "").toLowerCase().includes(q) ||
+          (t.id ?? "").toLowerCase().includes(q) ||
+          (t.status ?? "").toLowerCase().includes(q)
+      );
+    }
+
     // Filter by intent
     if (filterIntent) {
       list = list.filter((t) => inferIntent(t.query) === filterIntent);
@@ -943,7 +957,7 @@ export default function AdminDashboard() {
     }
 
     return list;
-  }, [pending, filterIntent, sortBy]);
+  }, [pending, filterIntent, sortBy, searchQuery]);
 
   const escalationRate = all.length ? Math.round((pending.length / all.length) * 100) : 0;
   const isCrisis = escalationRate >= 75;
@@ -1074,8 +1088,29 @@ export default function AdminDashboard() {
         )}
 
         {/* ── Escalation Queue ── */}
-        {!loading && escalated.length > 0 && (
+        {!loading && (escalated.length > 0 || searchQuery.trim()) && (
           <section>
+            {/* Search filter indicator */}
+            {searchQuery.trim() && (
+              <div className="flex items-center gap-2 mb-2 px-3 py-1.5 bg-accent-500/[0.04] border border-accent-500/[0.08] rounded-lg">
+                <Search className="w-3 h-3 text-accent-400" />
+                <span className="text-[11px] text-accent-400 font-mono flex-1">
+                  Filtering for &ldquo;{searchQuery}&rdquo;
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Clear search — parent page controls searchQuery via prop,
+                    // but we can signal via a custom event
+                    const evt = new CustomEvent("sentinel:clear-search");
+                    window.dispatchEvent(evt);
+                  }}
+                  className="text-accent-400/60 hover:text-accent-400 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
             {/* Queue header with sort/filter */}
             <div className={clsx(
               "flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 pb-2 border-b border-white/[0.04] gap-2 sm:gap-0",
@@ -1145,19 +1180,28 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <AnimatePresence mode="popLayout">
-                {escalated.map((t) => (
-                  <EscalationCard
-                    key={t.id}
-                    ticket={t}
-                    onResolved={() => handleResolved(t.id)}
-                    selected={selectedIds.has(t.id)}
-                    onSelect={() => toggleSelect(t.id)}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+            {escalated.length === 0 && searchQuery.trim() && (
+              <div className="card-surface-dense border-dashed py-6 flex flex-col items-center gap-2 text-center">
+                <Search className="w-5 h-5 text-zinc-500/20" />
+                <p className="text-[11px] text-zinc-500 font-mono">No tickets match &ldquo;{searchQuery}&rdquo;</p>
+              </div>
+            )}
+
+            {escalated.length > 0 && (
+              <div className="space-y-1.5">
+                <AnimatePresence mode="popLayout">
+                  {escalated.map((t) => (
+                    <EscalationCard
+                      key={t.id}
+                      ticket={t}
+                      onResolved={() => handleResolved(t.id)}
+                      selected={selectedIds.has(t.id)}
+                      onSelect={() => toggleSelect(t.id)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )
           </section>
         )}
 

@@ -34,7 +34,21 @@ function formatElapsed(createdAt?: string | null): string {
 }
 
 /* ── Command Palette (⌘K) ────────────────────────────────── */
-function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+function CommandPalette({
+  open,
+  onClose,
+  tickets,
+  onSearch,
+  onExportCSV,
+  onRefresh,
+}: {
+  open: boolean;
+  onClose: () => void;
+  tickets: Ticket[];
+  onSearch: (query: string) => void;
+  onExportCSV: () => void;
+  onRefresh: () => void;
+}) {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -42,19 +56,36 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
   }, [open]);
 
   const commands = [
-    { label: "Search tickets…", shortcut: "⌘K", section: "Navigation" },
-    { label: "Export to CSV", shortcut: "⌘E", section: "Actions" },
-    { label: "Toggle dark mode", shortcut: "⌘D", section: "Settings" },
-    { label: "Open settings", shortcut: "⌘,", section: "Settings" },
-    { label: "Refresh data", shortcut: "⌘R", section: "Actions" },
-    { label: "View customer portal", shortcut: "⌘P", section: "Navigation" },
+    { label: "Export to CSV", shortcut: "⌘E", section: "Actions", action: () => { onExportCSV(); onClose(); } },
+    { label: "Refresh data", shortcut: "⌘R", section: "Actions", action: () => { onRefresh(); onClose(); } },
   ];
 
-  const filtered = query
+  // Filter commands by query
+  const filteredCommands = query
     ? commands.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()))
     : commands;
 
-  const grouped = filtered.reduce<Record<string, typeof commands>>((acc, cmd) => {
+  // Search tickets by query
+  const matchingTickets = query.trim()
+    ? tickets
+        .filter(
+          (t) =>
+            (t.query ?? "").toLowerCase().includes(query.toLowerCase()) ||
+            (t.id ?? "").toLowerCase().includes(query.toLowerCase()) ||
+            (t.status ?? "").toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 6)
+    : [];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      onSearch(query.trim());
+      onClose();
+    }
+  };
+
+  const grouped = filteredCommands.reduce<Record<string, typeof commands>>((acc, cmd) => {
     (acc[cmd.section] ??= []).push(cmd);
     return acc;
   }, {});
@@ -77,21 +108,87 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
             transition={{ duration: 0.15 }}
             className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[520px] max-w-[90vw] bg-zinc-900/95 backdrop-blur-2xl border border-white/[0.08] rounded-xl shadow-elevation-3 z-50 overflow-hidden"
           >
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.05]">
-              <Search className="w-4 h-4 text-zinc-500" />
-              <input
-                autoFocus
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Type a command or search…"
-                className="flex-1 bg-transparent text-sm text-white placeholder-zinc-600 outline-none"
-              />
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-600 bg-zinc-800 border border-white/[0.06] rounded px-1.5 py-0.5">
-                ESC
-              </kbd>
-            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.05]">
+                <Search className="w-4 h-4 text-zinc-500" />
+                <input
+                  autoFocus
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search tickets or type a command…"
+                  className="flex-1 bg-transparent text-sm text-white placeholder-zinc-600 outline-none"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => { onSearch(""); setQuery(""); }}
+                    className="text-zinc-600 hover:text-zinc-400 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] font-mono text-zinc-600 bg-zinc-800 border border-white/[0.06] rounded px-1.5 py-0.5">
+                  ESC
+                </kbd>
+              </div>
+            </form>
             <div className="max-h-[320px] overflow-y-auto py-2">
+              {/* Matching tickets */}
+              {matchingTickets.length > 0 && (
+                <div>
+                  <p className="px-4 py-1 text-[10px] font-mono font-medium text-zinc-600 uppercase tracking-wider">
+                    Tickets
+                  </p>
+                  {matchingTickets.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        onSearch(query.trim());
+                        onClose();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/[0.04] transition-colors text-left"
+                    >
+                      <AlertTriangle className={clsx(
+                        "w-3.5 h-3.5 shrink-0",
+                        t.status === "awaiting_human" ? "text-amber-400" : "text-emerald-400"
+                      )} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12px] text-zinc-300 truncate">{t.query ?? "No query"}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={clsx(
+                            "text-[9px] font-mono px-1.5 py-0.5 rounded",
+                            t.status === "awaiting_human"
+                              ? "bg-amber-500/10 text-amber-400"
+                              : "bg-emerald-500/10 text-emerald-400"
+                          )}>
+                            {t.status}
+                          </span>
+                          <span className="text-[9px] text-zinc-600 font-mono">
+                            {formatElapsed(t.created_at)}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                  {query.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSearch(query.trim());
+                        onClose();
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2 hover:bg-white/[0.04] transition-colors text-left text-accent-400"
+                    >
+                      <Search className="w-3 h-3" />
+                      <span className="text-[11px]">Filter escalation queue for &ldquo;{query}&rdquo;</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Commands */}
               {Object.entries(grouped).map(([section, cmds]) => (
                 <div key={section}>
                   <p className="px-4 py-1 text-[10px] font-mono font-medium text-zinc-600 uppercase tracking-wider">
@@ -100,7 +197,8 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
                   {cmds.map((cmd) => (
                     <button
                       key={cmd.label}
-                      onClick={onClose}
+                      type="button"
+                      onClick={cmd.action}
                       className="w-full flex items-center justify-between px-4 py-2 hover:bg-white/[0.04] transition-colors text-left"
                     >
                       <span className="text-[13px] text-zinc-300">{cmd.label}</span>
@@ -111,7 +209,8 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
                   ))}
                 </div>
               ))}
-              {filtered.length === 0 && (
+
+              {query && matchingTickets.length === 0 && filteredCommands.length === 0 && (
                 <p className="text-center text-[12px] text-zinc-600 py-6">No results found</p>
               )}
             </div>
@@ -236,7 +335,8 @@ function NotificationBell({ tickets }: { tickets: Ticket[] }) {
 export default function AdminDashboardPage() {
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const { all } = useRealtimeTickets();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { all, refetch } = useRealtimeTickets();
 
   // Fetch logged-in user email
   useEffect(() => {
@@ -256,6 +356,13 @@ export default function AdminDashboardPage() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  // Listen for clear-search events from child components
+  useEffect(() => {
+    const handler = () => setSearchQuery("");
+    window.addEventListener("sentinel:clear-search", handler);
+    return () => window.removeEventListener("sentinel:clear-search", handler);
   }, []);
 
   const handleExportCSV = useCallback(() => {
@@ -280,7 +387,14 @@ export default function AdminDashboardPage() {
   return (
     <>
       {/* ── Command Palette Overlay ── */}
-      <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
+      <CommandPalette
+        open={cmdPaletteOpen}
+        onClose={() => setCmdPaletteOpen(false)}
+        tickets={all}
+        onSearch={setSearchQuery}
+        onExportCSV={handleExportCSV}
+        onRefresh={() => refetch()}
+      />
 
       {/* ── Top bar ── */}
       <header className="shrink-0 h-auto sm:h-14 flex flex-wrap sm:flex-nowrap items-center justify-between px-3 sm:px-5 py-2 sm:py-0 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/[0.06] z-20 gap-2 sm:gap-0">
@@ -296,11 +410,13 @@ export default function AdminDashboardPage() {
         {/* Center: Search trigger */}
         <button
           onClick={() => setCmdPaletteOpen(true)}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-800/40 border border-white/[0.06] rounded-lg hover:bg-zinc-800/60 hover:border-white/[0.10] transition-all duration-200 group"
+          className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/40 border border-white/[0.06] rounded-lg hover:bg-zinc-800/60 hover:border-white/[0.10] transition-all duration-200 group"
         >
           <Search className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400" />
-          <span className="text-[12px] text-zinc-600 group-hover:text-zinc-400">Search…</span>
-          <kbd className="text-[10px] font-mono text-zinc-700 bg-zinc-900/60 border border-white/[0.05] rounded px-1 py-px ml-4">
+          <span className="text-[12px] text-zinc-600 group-hover:text-zinc-400">
+            {searchQuery ? searchQuery : "Search…"}
+          </span>
+          <kbd className="hidden sm:inline text-[10px] font-mono text-zinc-700 bg-zinc-900/60 border border-white/[0.05] rounded px-1 py-px ml-4">
             ⌘K
           </kbd>
         </button>
@@ -346,7 +462,7 @@ export default function AdminDashboardPage() {
 
       {/* ── Full-width dashboard body ── */}
       <main className="flex-1 min-h-0 overflow-hidden">
-        <AdminDashboard />
+        <AdminDashboard searchQuery={searchQuery} />
       </main>
     </>
   );

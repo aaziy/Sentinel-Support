@@ -147,8 +147,6 @@ async def resume_query(request: Request, payload: ResumeRequest):
         is_escalated = result.get("is_escalated", False)
     except Exception:
         # Thread state was lost (server restarted).
-        # Mark the ticket as resolved in Supabase so it leaves the queue,
-        # then tell the admin what happened.
         response_text = (
             payload.feedback
             or "Resolved by admin (thread state expired after server restart)."
@@ -156,13 +154,16 @@ async def resume_query(request: Request, payload: ResumeRequest):
         route = "admin_resolved"
         is_escalated = True
 
-        try:
-            client = _get_client()
-            client.table("tickets").update(
-                {"status": "resolved", "response": response_text}
-            ).eq("id", ticket_id).execute()
-        except Exception:
-            pass
+    # Always mark the ticket as resolved in Supabase so it leaves
+    # the admin queue on every browser (whether the graph resumed
+    # successfully or the thread state was lost).
+    try:
+        client = _get_client()
+        client.table("tickets").update(
+            {"status": "resolved", "response": response_text}
+        ).eq("id", ticket_id).execute()
+    except Exception:
+        pass
 
     # ── Send resolution email if customer provided one ─────
     try:
