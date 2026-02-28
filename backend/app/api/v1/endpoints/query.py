@@ -8,6 +8,8 @@ Endpoints:
 """
 import uuid
 import re
+import logging
+import traceback
 from typing import Optional
 
 from fastapi import APIRouter, Request, HTTPException
@@ -28,6 +30,7 @@ from app.services.email_service import send_resolution_email
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
+logger = logging.getLogger(__name__)
 
 # ── Input sanitisation ─────────────────────────────────────
 MAX_QUERY_LEN = 2000
@@ -84,7 +87,17 @@ async def run_query(request: Request, payload: QueryRequest):
     )
     config = {"configurable": {"thread_id": ticket_id}}
 
-    result = support_graph.invoke(initial, config=config)
+    try:
+        result = support_graph.invoke(initial, config=config)
+    except Exception as e:
+        logger.error("Graph invoke failed: %s\n%s", e, traceback.format_exc())
+        # Return a graceful error instead of crashing with 500
+        return QueryResponse(
+            ticket_id=ticket_id,
+            response="I'm sorry, something went wrong processing your request. Please try again.",
+            route="error",
+            is_escalated=False,
+        )
 
     route = result.get("route", "unknown")
     is_escalated = result.get("is_escalated", False)

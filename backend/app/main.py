@@ -35,3 +35,30 @@ app.include_router(api_router, prefix="/api/v1")
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {"status": "ok"}
+
+
+@app.get("/debug/test-graph", tags=["Debug"])
+async def debug_test_graph():
+    """Quick diagnostic: invoke the graph with a trivial query to surface errors."""
+    import traceback
+    try:
+        from app.core.graph.agent_graph import support_graph
+        result = support_graph.invoke(
+            {
+                "messages": [],
+                "query": "hello",
+                "route": None,
+                "retrieved_docs": [],
+                "is_escalated": False,
+                "response": None,
+                "ticket_id": "debug-test",
+                "escalation_reason": None,
+                "customer_email": None,
+                "problem_description": None,
+                "awaiting_problem_description": False,
+            },
+            config={"configurable": {"thread_id": "debug-test"}},
+        )
+        return {"status": "ok", "route": result.get("route"), "response": result.get("response", "")[:200]}
+    except Exception as e:
+        return {"status": "error", "error": str(e), "traceback": traceback.format_exc()[-2000:]}
