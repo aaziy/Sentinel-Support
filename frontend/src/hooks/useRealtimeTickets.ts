@@ -104,6 +104,7 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
         }
       )
       .subscribe((status) => {
+        console.log("[Realtime] channel status:", status);
         switch (status) {
           case "SUBSCRIBED":
             setConnectionStatus("connected");
@@ -121,7 +122,23 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
 
     channelRef.current = channel;
 
+    // Fallback polling: if Realtime doesn't connect within 8s, poll every 15s
+    const pollTimer = setInterval(() => {
+      if (channelRef.current?.state !== "joined") {
+        fetchTickets();
+      }
+    }, 15_000);
+
+    const connectTimeout = setTimeout(() => {
+      if (channelRef.current?.state !== "joined") {
+        console.warn("[Realtime] Still not connected after 8s — falling back to polling");
+        setConnectionStatus("error");
+      }
+    }, 8_000);
+
     return () => {
+      clearInterval(pollTimer);
+      clearTimeout(connectTimeout);
       supabase.removeChannel(channel);
       channelRef.current = null;
     };

@@ -237,9 +237,13 @@ function SystemHealth({ status }: { status: ConnectionStatus }) {
       ) : (
         <>
           <span className="h-2 w-2 rounded-full bg-zinc-600" />
-          <WifiOff className="w-3 h-3 text-zinc-500" />
+          {status === "connecting" ? (
+            <Wifi className="w-3 h-3 text-zinc-500 animate-pulse" />
+          ) : (
+            <WifiOff className="w-3 h-3 text-zinc-500" />
+          )}
           <span className="text-[10px] font-medium text-zinc-500">
-            {status === "connecting" ? "Connecting…" : "Offline"}
+            {status === "connecting" ? "Connecting…" : status === "error" ? "Polling" : "Offline"}
           </span>
         </>
       )}

@@ -136,9 +136,33 @@ async def resume_query(request: Request, payload: ResumeRequest):
 
     config = {"configurable": {"thread_id": ticket_id}}
 
-    # Resume – pass None to continue from the interrupt point
-    result = support_graph.invoke(None, config=config)
-    response_text = result.get("response") or "Thread resumed."
+    # Resume – pass None to continue from the interrupt point.
+    # The in-memory checkpointer loses state on server restart (Render
+    # free-tier sleeps after inactivity), so handle the missing-thread
+    # case gracefully instead of crashing with a 500.
+    try:
+        result = support_graph.invoke(None, config=config)
+        response_text = result.get("response") or "Thread resumed."
+        route = result.get("route", "unknown")
+        is_escalated = result.get("is_escalated", False)
+    except Exception:
+        # Thread state was lost (server restarted).
+        # Mark the ticket as resolved in Supabase so it leaves the queue,
+        # then tell the admin what happened.
+        response_text = (
+            payload.feedback
+            or "Resolved by admin (thread state expired after server restart)."
+        )
+        route = "admin_resolved"
+        is_escalated = True
+
+        try:
+            client = _get_client()
+            client.table("tickets").update(
+                {"status": "resolved", "response": response_text}
+            ).eq("id", ticket_id).execute()
+        except Exception:
+            pass
 
     # ── Send resolution email if customer provided one ─────
     try:
@@ -170,8 +194,8 @@ async def resume_query(request: Request, payload: ResumeRequest):
     return QueryResponse(
         ticket_id=ticket_id,
         response=response_text,
-        route=result.get("route", "unknown"),
-        is_escalated=result.get("is_escalated", False),
+        route=route,
+        is_escalated=is_escalated,
     )
 
 
