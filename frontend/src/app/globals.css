@@ -32,7 +32,7 @@
     @apply bg-zinc-900/80 backdrop-blur-xl border border-white/[0.05] rounded-xl shadow-panel;
   }
   .card-surface-dense {
-    @apply bg-zinc-900/80 backdrop-blur-xl border border-white/[0.05] rounded-lg shadow-elevation-1;
+    @apply bg-zinc-900/70 backdrop-blur-xl border border-white/[0.06] rounded-xl shadow-elevation-1;
   }
 
   /* ── Crisis card — pulsing red for critical states ── */
@@ -43,11 +43,11 @@
   }
 
   /* ── Stat card backgrounds by status tint ── */
-  .stat-card-default  { @apply bg-zinc-900/80; }
-  .stat-card-warning  { background: linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(24,24,27,0.8) 100%); }
-  .stat-card-success  { background: linear-gradient(135deg, rgba(52,211,153,0.04) 0%, rgba(24,24,27,0.8) 100%); }
-  .stat-card-danger   { background: linear-gradient(135deg, rgba(244,63,94,0.06) 0%, rgba(24,24,27,0.8) 100%); }
-  .stat-card-info     { background: linear-gradient(135deg, rgba(124,92,252,0.04) 0%, rgba(24,24,27,0.8) 100%); }
+  .stat-card-default  { @apply bg-zinc-900/70; }
+  .stat-card-warning  { background: linear-gradient(135deg, rgba(245,158,11,0.03) 0%, rgba(24,24,27,0.7) 100%); }
+  .stat-card-success  { background: linear-gradient(135deg, rgba(52,211,153,0.03) 0%, rgba(24,24,27,0.7) 100%); }
+  .stat-card-danger   { background: linear-gradient(135deg, rgba(244,63,94,0.04) 0%, rgba(24,24,27,0.7) 100%); }
+  .stat-card-info     { background: linear-gradient(135deg, rgba(124,92,252,0.03) 0%, rgba(24,24,27,0.7) 100%); }
 
   /* ── Markdown prose inside chat bubbles ── */
   .prose-chat {
@@ -121,22 +121,22 @@
     );
   }
 
-  /* ── BREACH badge — loudest element on ticket row ── */
+  /* ── BREACH badge ── */
   .badge-breach {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 3px 10px;
+    padding: 2px 8px;
     border-radius: 6px;
-    background: rgba(244,63,94,0.15);
+    background: rgba(244,63,94,0.12);
     color: #fb7185;
-    border: 1.5px solid rgba(244,63,94,0.35);
-    box-shadow: 0 0 16px 2px rgba(244,63,94,0.15);
-    animation: breach-pulse 1.5s ease-in-out infinite;
+    border: 1px solid rgba(244,63,94,0.25);
+    box-shadow: 0 0 12px 1px rgba(244,63,94,0.10);
+    animation: breach-pulse 2s ease-in-out infinite;
   }
   @keyframes breach-pulse {
     0%, 100% { box-shadow: 0 0 16px 2px rgba(244,63,94,0.15); }

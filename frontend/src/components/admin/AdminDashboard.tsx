@@ -190,7 +190,7 @@ const PRIORITY_BADGE: Record<string, string> = {
 function StatusBadge({ status }: { status: string }) {
   const c = STATUS_CONFIG[status] ?? STATUS_CONFIG.open;
   return (
-    <span className={clsx("inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border", c.cls)}>
+    <span className={clsx("inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md border", c.cls)}>
       {c.icon} {c.label}
     </span>
   );
@@ -199,7 +199,7 @@ function StatusBadge({ status }: { status: string }) {
 function PriorityBadge({ priority }: { priority: string }) {
   const c = PRIORITY_BADGE[priority] ?? PRIORITY_BADGE.medium;
   return (
-    <span className={clsx("inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border capitalize", c)}>
+    <span className={clsx("inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md border capitalize", c)}>
       {priority}
     </span>
   );
@@ -208,7 +208,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 function IntentTag({ query }: { query?: string | null }) {
   const intent = inferIntent(query);
   return (
-    <span className="inline-flex items-center gap-1 text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-white/[0.04]">
+    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-zinc-800/80 text-zinc-400 border border-white/[0.05]">
       <Tag className="w-2.5 h-2.5" />#{intent}
     </span>
   );
@@ -297,7 +297,7 @@ function StatCard({
       transition={{ delay: delay * 0.08, type: "spring", stiffness: 400, damping: 30 }}
       whileHover={{ scale: 1.02 }}
       className={clsx(
-        "backdrop-blur-xl border rounded-lg shadow-elevation-1 p-3 flex flex-col gap-2 relative overflow-hidden cursor-default transition-all duration-300",
+        "backdrop-blur-xl border rounded-xl shadow-elevation-1 p-4 flex flex-col gap-2 relative overflow-hidden cursor-default transition-all duration-300",
         isCrisis
           ? "card-crisis animate-crisis-pulse"
           : "border-white/[0.05]",
@@ -333,20 +333,20 @@ function StatCard({
         )}
       </div>
 
-      {/* DRAMATIC number — 48-64px presentation-ready */}
+      {/* Number */}
       <div>
         <p className={clsx(
-          "font-display font-extrabold text-white leading-none tabular-nums tracking-tight",
-          isBroken ? "text-[32px] sm:text-[40px] lg:text-[56px] text-red-400" : "text-[28px] sm:text-[36px] lg:text-[48px]"
+          "font-semibold text-white leading-none tabular-nums tracking-tight",
+          isBroken ? "text-[22px] sm:text-[26px] lg:text-[32px] text-red-400" : "text-[20px] sm:text-[24px] lg:text-[30px]"
         )}>
           {displayValue}
-          {suffix && <span className="text-[14px] sm:text-[16px] lg:text-[20px] font-semibold text-zinc-500 ml-0.5">{suffix}</span>}
+          {suffix && <span className="text-[12px] sm:text-[14px] lg:text-[16px] font-medium text-zinc-500 ml-0.5">{suffix}</span>}
         </p>
-        <p className="text-[9px] sm:text-[11px] text-zinc-500 mt-1 sm:mt-1.5 truncate font-mono uppercase tracking-wider">{label}</p>
+        <p className="text-[10px] sm:text-[11px] text-zinc-500 mt-1 sm:mt-1.5 truncate font-mono uppercase tracking-wider">{label}</p>
       </div>
 
-      {/* Sparkline — 48px */}
-      <div className="w-full h-8 sm:h-12">
+      {/* Sparkline */}
+      <div className="w-full h-6 sm:h-8">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={sparkData}>
             <defs>
@@ -519,12 +519,12 @@ function EscalationCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, x: -12 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 60 }}
-      whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: 40 }}
+      whileHover={{ backgroundColor: "rgba(255,255,255,0.015)" }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className={clsx("card-surface-dense border-l-4 overflow-hidden", urgencyBorder)}
+      className={clsx("card-surface-dense border-l-[3px] overflow-hidden", urgencyBorder)}
     >
       {/* Header row */}
       <div className="flex items-center">
@@ -550,17 +550,16 @@ function EscalationCard({
               priority === "critical" || priority === "high" ? "text-red-400" : "text-amber-400"
             )} />
             <div className="min-w-0 text-left">
-              <p className="text-[12px] font-medium text-zinc-200 truncate">
+              <p className="text-[13px] font-medium text-zinc-200 truncate">
                 {ticket.query ?? "No query recorded"}
               </p>
-              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <StatusBadge status={ticket.status} />
                 <PriorityBadge priority={priority} />
-                <IntentTag query={ticket.query} />
                 {elapsed && (
                   <span className={clsx(
-                    "text-[9px] font-mono",
-                    elapsed.includes("h") || elapsed.includes("d") ? "text-red-400" : "text-zinc-600"
+                    "text-[10px] font-mono",
+                    elapsed.includes("h") || elapsed.includes("d") ? "text-red-400/80" : "text-zinc-500"
                   )}>{elapsed}</span>
                 )}
                 <SLATimer createdAt={ticket.created_at} />
@@ -588,23 +587,23 @@ function EscalationCard({
             <div className="px-4 pb-4 pt-2 border-t border-white/[0.04] space-y-3">
               {/* AI response preview */}
               {ticket.response && (
-                <div className="bg-zinc-950/80 rounded-md p-3 border border-white/[0.04]">
-                  <p className="text-[9px] font-mono font-medium text-zinc-500 mb-1.5">AI Response</p>
-                  <p className="text-[12px] text-zinc-300 leading-relaxed">{ticket.response}</p>
+                <div className="bg-zinc-950/60 rounded-xl p-4 border border-white/[0.05]">
+                  <p className="text-[10px] font-mono font-medium text-zinc-500 mb-2">AI Response</p>
+                  <p className="text-[13px] text-zinc-300 leading-relaxed">{ticket.response}</p>
                 </div>
               )}
 
               {/* AI Summary + Suggested Response (mock) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div className="bg-zinc-950/60 rounded-md p-2.5 border border-white/[0.04]">
-                  <p className="text-[9px] font-mono font-medium text-accent-400/60 mb-1">AI Summary</p>
-                  <p className="text-[11px] text-zinc-400">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="bg-zinc-950/50 rounded-xl p-3.5 border border-white/[0.05]">
+                  <p className="text-[10px] font-mono font-medium text-accent-400/70 mb-1.5">AI Summary</p>
+                  <p className="text-[12px] text-zinc-400 leading-relaxed">
                     Customer needs assistance with {inferIntent(ticket.query).toLowerCase()} issue. Priority: {priority}.
                   </p>
                 </div>
-                <div className="bg-zinc-950/60 rounded-md p-2.5 border border-white/[0.04]">
-                  <p className="text-[9px] font-mono font-medium text-emerald-400/60 mb-1">Suggested Action</p>
-                  <p className="text-[11px] text-zinc-400">
+                <div className="bg-zinc-950/50 rounded-xl p-3.5 border border-white/[0.05]">
+                  <p className="text-[10px] font-mono font-medium text-emerald-400/70 mb-1.5">Suggested Action</p>
+                  <p className="text-[12px] text-zinc-400 leading-relaxed">
                     Review AI response, add context if needed, then approve to resume the agent workflow.
                   </p>
                 </div>
@@ -620,7 +619,7 @@ function EscalationCard({
 
               {/* Feedback */}
               <div>
-                <label className="text-[9px] font-mono font-medium text-zinc-500 mb-1 block">
+                <label className="text-[10px] font-mono font-medium text-zinc-500 mb-1.5 block">
                   Admin Feedback (optional)
                 </label>
                 <textarea
@@ -628,7 +627,7 @@ function EscalationCard({
                   onChange={(e) => setFeedback(e.target.value)}
                   placeholder="Notes for resolution…"
                   rows={2}
-                  className="w-full rounded-md bg-zinc-950/60 border border-white/[0.05] px-3 py-2 text-[12px] text-zinc-300 placeholder-zinc-700 outline-none focus:border-accent-500/20 focus:shadow-glow-accent resize-none transition-all duration-300"
+                  className="w-full rounded-lg bg-zinc-950/60 border border-white/[0.06] px-3 py-2.5 text-[13px] text-zinc-300 placeholder-zinc-600 outline-none focus:border-accent-500/20 focus:shadow-glow-accent resize-none transition-all duration-300"
                 />
               </div>
 
@@ -643,7 +642,7 @@ function EscalationCard({
                 onClick={handleResume}
                 disabled={resuming}
                 className={clsx(
-                  "w-full flex items-center justify-center gap-2 rounded-md py-2 text-[12px] font-semibold transition-all duration-300",
+                  "w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-[13px] font-semibold transition-all duration-300",
                   resuming
                     ? "bg-white/[0.04] text-zinc-500 cursor-wait"
                     : "bg-accent-500 text-zinc-950 hover:bg-accent-400 shadow-glow-accent"
@@ -765,26 +764,20 @@ function EscalationCard({
 
 /* ── Resolved card ───────────────────────────────────────── */
 function ResolvedCard({ ticket }: { ticket: Ticket }) {
-  const priority = ticket.priority ?? "medium";
-  const urgencyBorder = getUrgencyClass(ticket.created_at);
-
   return (
     <motion.div
       layout
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
-      className={clsx(
-        "card-surface-dense border-l-4 px-4 py-2 flex items-center justify-between transition-all duration-300",
-        urgencyBorder
-      )}
+      className="card-surface-dense px-4 py-3 flex items-center justify-between transition-all duration-300 hover:bg-white/[0.02]"
     >
       <div className="min-w-0 flex-1">
-        <p className="text-[12px] text-zinc-400 truncate">{ticket.query ?? "—"}</p>
-        <div className="flex items-center gap-1.5 mt-0.5">
+        <p className="text-[13px] text-zinc-400 truncate">{ticket.query ?? "—"}</p>
+        <div className="flex items-center gap-2 mt-0.5">
           <StatusBadge status="resolved" />
           <IntentTag query={ticket.query} />
-          <span className="text-[9px] font-mono text-zinc-600">{formatElapsed(ticket.created_at)}</span>
+          <span className="text-[10px] font-mono text-zinc-500">{formatElapsed(ticket.created_at)}</span>
         </div>
       </div>
       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/25 shrink-0 ml-2" />
@@ -851,7 +844,7 @@ function KBHealthPanel() {
     <div className="card-surface-dense p-3">
       <div className="flex items-center gap-1.5 mb-2">
         <BookOpen className="w-3 h-3 text-emerald-400" />
-        <h4 className="text-[10px] font-display font-bold text-zinc-400 uppercase tracking-widest">Knowledge Base</h4>
+        <h4 className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Knowledge Base</h4>
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -992,14 +985,14 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
   return (
     <div className={clsx("flex flex-col h-full overflow-hidden relative", isCrisis && "crisis-overlay")}>
       {/* ── Header ── */}
-      <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 border-b border-white/[0.05] z-10 relative gap-2 sm:gap-0">
+      <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 border-b border-white/[0.05] z-10 relative gap-2 sm:gap-0">
         <div className="flex items-center gap-2 sm:gap-2.5">
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-accent-500/[0.06] border border-accent-500/[0.08] flex items-center justify-center">
             <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-400" />
           </div>
           <div>
-            <h2 className="text-[13px] sm:text-[15px] font-display font-bold text-white tracking-tight">Command Center</h2>
-            <p className="text-[9px] sm:text-[10px] text-zinc-500 leading-none font-mono">realtime · ticket-oversight</p>
+            <h2 className="text-[14px] sm:text-[16px] font-semibold text-white tracking-tight">Command Center</h2>
+            <p className="text-[10px] text-zinc-500 leading-none font-mono">realtime · ticket-oversight</p>
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-end">
@@ -1023,17 +1016,17 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
       <CrisisAlertBanner rate={escalationRate} count={escalated.length} />
 
       {/* ── Body ── */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-2 sm:py-3 space-y-2 sm:space-y-3 relative z-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-3 sm:py-4 space-y-3 sm:space-y-4 relative z-10">
         {/* Time range + Stats header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-          <h3 className="text-[11px] sm:text-[12px] font-display font-bold text-zinc-400 uppercase tracking-widest">
+          <h3 className="text-[12px] sm:text-[13px] font-semibold text-zinc-400 uppercase tracking-wider">
             Overview
           </h3>
           <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
         </div>
 
         {/* Stats row — staggered */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
           <StatCard
             label="Total Tickets"
             value={all.length}
@@ -1119,7 +1112,7 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
               <div className="flex items-center gap-2">
                 <Inbox className={clsx("w-3.5 h-3.5", isCrisis ? "text-red-400 animate-pulse" : "text-amber-400")} />
                 <h3 className={clsx(
-                  "text-[12px] font-display font-bold uppercase tracking-widest",
+                  "text-[13px] font-semibold uppercase tracking-wider",
                   isCrisis ? "text-rose-400" : "text-zinc-300"
                 )}>
                   Escalation Queue
@@ -1215,10 +1208,10 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
         {/* ── Resolved ── */}
         {!loading && resolved.length > 0 && (
           <section>
-            <h3 className="text-[12px] font-display font-bold text-zinc-500 uppercase tracking-widest mb-2">
+            <h3 className="text-[13px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
               Recently Resolved ({resolved.length})
             </h3>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <AnimatePresence mode="popLayout">
                 {resolved.slice(0, 10).map((t) => (
                   <ResolvedCard key={t.id} ticket={t} />
@@ -1229,12 +1222,12 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
         )}
 
         {/* ── Bottom panels: Activity Feed + KB Health + Leaderboard ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3">
           {/* Activity Feed — built from real tickets */}
           <div className="card-surface-dense p-3">
             <div className="flex items-center gap-1.5 mb-2">
               <Zap className="w-3 h-3 text-accent-400" />
-              <h4 className="text-[10px] font-display font-bold text-zinc-400 uppercase tracking-widest">Live Activity</h4>
+              <h4 className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Live Activity</h4>
             </div>
             <div className="space-y-0 divide-y divide-white/[0.03]">
               {all.length === 0 && (
@@ -1270,7 +1263,7 @@ export default function AdminDashboard({ searchQuery = "" }: { searchQuery?: str
           <div className="card-surface-dense p-3">
             <div className="flex items-center gap-1.5 mb-2">
               <Users className="w-3 h-3 text-amber-400" />
-              <h4 className="text-[10px] font-display font-bold text-zinc-400 uppercase tracking-widest">Agent Performance</h4>
+              <h4 className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Agent Performance</h4>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">

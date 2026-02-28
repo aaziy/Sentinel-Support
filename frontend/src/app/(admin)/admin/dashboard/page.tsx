@@ -397,12 +397,12 @@ export default function AdminDashboardPage() {
       />
 
       {/* ── Top bar ── */}
-      <header className="shrink-0 h-auto sm:h-14 flex flex-wrap sm:flex-nowrap items-center justify-between px-3 sm:px-5 py-2 sm:py-0 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/[0.06] z-20 gap-2 sm:gap-0">
+      <header className="shrink-0 h-auto sm:h-14 flex flex-wrap sm:flex-nowrap items-center justify-between px-4 sm:px-6 py-2.5 sm:py-0 bg-zinc-900/70 backdrop-blur-2xl border-b border-white/[0.06] z-20 gap-2 sm:gap-0">
         {/* Left: Logo */}
         <div className="flex items-center gap-2 sm:gap-4">
           <SentinelMark size={24} glow />
           <span className="hidden sm:inline"><SentinelWordmark /></span>
-          <span className="hidden md:inline-flex text-[10px] font-mono text-accent-400/60 bg-accent-500/[0.06] border border-accent-500/[0.08] rounded px-2 py-0.5">
+          <span className="hidden md:inline-flex text-[10px] font-mono text-accent-400/70 bg-accent-500/[0.06] border border-accent-500/[0.10] rounded-md px-2 py-0.5">
             v1.0 · admin
           </span>
         </div>
@@ -410,13 +410,13 @@ export default function AdminDashboardPage() {
         {/* Center: Search trigger */}
         <button
           onClick={() => setCmdPaletteOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/40 border border-white/[0.06] rounded-lg hover:bg-zinc-800/60 hover:border-white/[0.10] transition-all duration-200 group"
+          className="flex items-center gap-2.5 px-3.5 py-1.5 bg-zinc-800/50 border border-white/[0.07] rounded-lg hover:bg-zinc-800/70 hover:border-white/[0.12] transition-all duration-200 group min-w-[180px] sm:min-w-[240px]"
         >
-          <Search className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400" />
-          <span className="text-[12px] text-zinc-600 group-hover:text-zinc-400">
+          <Search className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-400" />
+          <span className="text-[13px] text-zinc-500 group-hover:text-zinc-400 flex-1 text-left">
             {searchQuery ? searchQuery : "Search…"}
           </span>
-          <kbd className="hidden sm:inline text-[10px] font-mono text-zinc-700 bg-zinc-900/60 border border-white/[0.05] rounded px-1 py-px ml-4">
+          <kbd className="hidden sm:inline text-[10px] font-mono text-zinc-600 bg-zinc-900/60 border border-white/[0.06] rounded px-1.5 py-0.5">
             ⌘K
           </kbd>
         </button>
@@ -441,13 +441,13 @@ export default function AdminDashboardPage() {
           </button>
 
           {/* User avatar + sign out */}
-          <div className="ml-2 flex items-center gap-2 pl-2 border-l border-white/[0.06]">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-500/20 to-accent-700/20 border border-accent-500/20 flex items-center justify-center">
+          <div className="ml-2 flex items-center gap-2.5 pl-3 border-l border-white/[0.06]">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-500/15 to-accent-600/15 border border-accent-500/15 flex items-center justify-center">
               <User className="w-3.5 h-3.5 text-accent-400" />
             </div>
             <div className="hidden lg:block">
-              <p className="text-[11px] font-medium text-zinc-300 leading-none">Admin</p>
-              <p className="text-[9px] text-zinc-600 leading-none mt-0.5 font-mono">{userEmail ?? "…"}</p>
+              <p className="text-[12px] font-medium text-zinc-300 leading-none">Admin</p>
+              <p className="text-[10px] text-zinc-500 leading-none mt-0.5 font-mono">{userEmail ?? "…"}</p>
             </div>
             <button
               onClick={handleSignOut}
