@@ -905,7 +905,7 @@ export default function AdminDashboard() {
   }, []);
 
   const bulkResolve = useCallback(() => {
-    selectedIds.forEach((id) => markResolved(id));
+    Promise.all(Array.from(selectedIds).map((id) => markResolved(id)));
     setSelectedIds(new Set());
   }, [selectedIds, markResolved]);
 

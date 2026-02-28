@@ -27,8 +27,8 @@ export interface UseRealtimeTicketsReturn {
   connectionStatus: ConnectionStatus;
   /** Force a re-fetch from the database. */
   refetch: () => Promise<void>;
-  /** Optimistically mark a ticket as resolved in local state. */
-  markResolved: (ticketId: string) => void;
+  /** Mark a ticket as resolved — writes to Supabase and syncs all browsers. */
+  markResolved: (ticketId: string) => Promise<void>;
 }
 
 /**
@@ -127,15 +127,32 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
     };
   }, [fetchTickets]);
 
-  // ── Optimistic resolve ─────────────────────────────────
-  const markResolved = useCallback((ticketId: string) => {
+  // ── Resolve: optimistic update + Supabase write ────────
+  const markResolved = useCallback(async (ticketId: string) => {
+    const now = new Date().toISOString();
+    // Optimistic update first for instant UI feedback
     setTickets((prev) =>
       prev.map((t) =>
         t.id === ticketId
-          ? { ...t, status: "resolved" as TicketStatus, updated_at: new Date().toISOString() }
+          ? { ...t, status: "resolved" as TicketStatus, updated_at: now }
           : t
       )
     );
+    // Write to Supabase so all browsers sync via realtime
+    const { error } = await supabase
+      .from("tickets")
+      .update({ status: "resolved", updated_at: now })
+      .eq("id", ticketId);
+    // If DB write failed, revert optimistic update
+    if (error) {
+      setTickets((prev) =>
+        prev.map((t) =>
+          t.id === ticketId
+            ? { ...t, status: "awaiting_human" as TicketStatus }
+            : t
+        )
+      );
+    }
   }, []);
 
   // ── Derived lists ──────────────────────────────────────
