@@ -1,28 +1,23 @@
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
 from typing import List
+import json
 
 
 class Settings(BaseSettings):
     # App
     APP_ENV: str = "development"
     APP_SECRET_KEY: str = "change-me"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    # Stored as str to avoid pydantic-settings JSON-parse errors.
+    # Use the .allowed_origins property to get the parsed list.
+    ALLOWED_ORIGINS: str = "http://localhost:3000"
 
-    @field_validator("ALLOWED_ORIGINS", mode="before")
-    @classmethod
-    def parse_origins(cls, v):
-        if isinstance(v, list):
-            return v
-        if isinstance(v, str):
-            v = v.strip()
-            # Handle JSON array format: ["a","b"]
-            if v.startswith("["):
-                import json
-                return json.loads(v)
-            # Handle comma-separated format: a,b
-            return [o.strip() for o in v.split(",") if o.strip()]
-        return v
+    @property
+    def allowed_origins(self) -> List[str]:
+        """Parse ALLOWED_ORIGINS from either JSON array or comma-separated string."""
+        v = self.ALLOWED_ORIGINS.strip()
+        if v.startswith("["):
+            return json.loads(v)
+        return [o.strip() for o in v.split(",") if o.strip()]
 
     # Rate limiting (per IP)
     RATE_LIMIT: str = "60/minute"
