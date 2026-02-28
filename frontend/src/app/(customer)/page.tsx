@@ -250,7 +250,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         </div>
       )}
 
-      <div className={clsx("max-w-[82%] space-y-0", isUser && "items-end")}>
+      <div className={clsx("max-w-[88%] sm:max-w-[82%] space-y-0", isUser && "items-end")}>
         <div
           className={clsx(
             "rounded-lg px-4 py-2.5",
@@ -353,9 +353,9 @@ function EscalationEmailForm({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.21, 1.02, 0.73, 1] }}
-        className="max-w-[420px] mx-auto"
+        className="max-w-[420px] mx-auto px-1 sm:px-0"
       >
-        <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/[0.06] rounded-xl p-5 space-y-4 shadow-elevation-2">
+        <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/[0.06] rounded-xl p-4 sm:p-5 space-y-4 shadow-elevation-2">
           {/* Success header */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(124,92,252,0.1)" }}>
@@ -405,9 +405,9 @@ function EscalationEmailForm({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.21, 1.02, 0.73, 1] }}
-      className="max-w-[420px] mx-auto"
+      className="max-w-[420px] mx-auto px-1 sm:px-0"
     >
-      <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/[0.06] rounded-xl p-5 space-y-4 shadow-elevation-2">
+      <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/[0.06] rounded-xl p-4 sm:p-5 space-y-4 shadow-elevation-2">
         {/* Header */}
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(124,92,252,0.1)" }}>
@@ -527,7 +527,7 @@ function InputPill({
         {/* Inner container — sits on top of the gradient border */}
         <div className="relative bg-[#0e0e11] rounded-[19px] overflow-hidden">
           {/* Main input area */}
-          <div className="flex items-start gap-3 px-5 pt-4 pb-2">
+          <div className="flex items-start gap-2 sm:gap-3 px-3 sm:px-5 pt-3 sm:pt-4 pb-2">
             <textarea
               ref={inputRef as React.RefObject<HTMLTextAreaElement>}
               value={input}
@@ -545,7 +545,7 @@ function InputPill({
               placeholder={placeholder ?? "How can I help you today?"}
               disabled={isThinking}
               rows={1}
-              className="flex-1 bg-transparent text-[15px] text-white placeholder-zinc-500 outline-none disabled:opacity-40 resize-none overflow-hidden leading-relaxed"
+              className="flex-1 bg-transparent text-[14px] sm:text-[15px] text-white placeholder-zinc-500 outline-none disabled:opacity-40 resize-none overflow-hidden leading-relaxed"
               style={{ minHeight: "28px" }}
             />
             {/* Status dot — green when ready */}
@@ -565,7 +565,7 @@ function InputPill({
           </div>
 
           {/* Bottom toolbar */}
-          <div className="flex items-center justify-end px-4 pb-3">
+          <div className="flex items-center justify-end px-3 sm:px-4 pb-2.5 sm:pb-3">
             <div className="flex items-center gap-3">
               {/* Agent badge */}
               <span className="text-[11px] text-zinc-500 font-mono">
@@ -786,7 +786,7 @@ export default function CustomerPortal() {
     return (
       <div className="flex flex-col h-full">
         {/* Top nav — minimal, just brand + admin link */}
-        <div className="shrink-0 flex items-center justify-between px-6 py-4 relative z-10">
+        <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 relative z-10">
           <div className="relative group/logo">
             {/* Gradient border glow on logo pill */}
             <div
@@ -811,7 +811,7 @@ export default function CustomerPortal() {
         </div>
 
         {/* Center — greeting + input pill */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 -mt-8">
           {/* Greeting — large, airy */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -819,7 +819,7 @@ export default function CustomerPortal() {
             transition={{ duration: 0.5, ease: [0.21, 1.02, 0.73, 1] }}
             className="text-center mb-10"
           >
-            <h1 className="text-[32px] sm:text-[38px] font-display font-semibold text-zinc-300 tracking-tight leading-tight">
+            <h1 className="text-[24px] sm:text-[32px] md:text-[38px] font-display font-semibold text-zinc-300 tracking-tight leading-tight">
               <span className="mr-2">{greeting.emoji}</span>
               {greeting.text}
             </h1>
@@ -898,7 +898,7 @@ export default function CustomerPortal() {
   return (
     <div className="flex flex-col h-full">
       {/* Compact header — brand + live dot + new chat */}
-      <header className="shrink-0 flex items-center justify-between px-6 py-3 border-b border-white/[0.05]">
+      <header className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 border-b border-white/[0.05]">
         <div className="relative">
           <div
             className="absolute -inset-[1px] rounded-xl pointer-events-none opacity-70"
@@ -934,7 +934,7 @@ export default function CustomerPortal() {
 
       {/* Messages area — centered column, max-width */}
       <div ref={containerRef} className="flex-1 overflow-y-auto relative">
-        <div className="max-w-[700px] mx-auto px-6 py-6 space-y-5">
+        <div className="max-w-[700px] mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-5">
           <AnimatePresence mode="popLayout">
             {messages.map((msg) => (
               <MessageBubble key={msg.id} message={msg} />
@@ -983,7 +983,7 @@ export default function CustomerPortal() {
       </AnimatePresence>
 
       {/* Pinned input — same pill component, no wrapping card */}
-      <div className="shrink-0 px-6 pb-4 pt-2">
+      <div className="shrink-0 px-3 sm:px-6 pb-3 sm:pb-4 pt-2">
         <InputPill
           input={input}
           setInput={setInput}

@@ -129,7 +129,7 @@ function LoginForm() {
 /* ── Login Page ───────────────────────────────────────────── */
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 sm:p-6 safe-top safe-bottom">
       {/* Background accents */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-500/[0.03] rounded-full blur-3xl" />

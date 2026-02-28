@@ -310,7 +310,7 @@ function StatCard({
       {/* Top row: icon + trend */}
       <div className="flex items-center justify-between">
         <div className={clsx(
-          "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
+          "w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0",
           isBroken
             ? "bg-red-500/[0.08] border border-red-500/[0.12]"
             : "bg-white/[0.03] border border-white/[0.04]"
@@ -332,16 +332,16 @@ function StatCard({
       <div>
         <p className={clsx(
           "font-display font-extrabold text-white leading-none tabular-nums tracking-tight",
-          isBroken ? "text-[56px] text-red-400" : "text-[48px]"
+          isBroken ? "text-[32px] sm:text-[40px] lg:text-[56px] text-red-400" : "text-[28px] sm:text-[36px] lg:text-[48px]"
         )}>
           {displayValue}
-          {suffix && <span className="text-[20px] font-semibold text-zinc-500 ml-0.5">{suffix}</span>}
+          {suffix && <span className="text-[14px] sm:text-[16px] lg:text-[20px] font-semibold text-zinc-500 ml-0.5">{suffix}</span>}
         </p>
-        <p className="text-[11px] text-zinc-500 mt-1.5 truncate font-mono uppercase tracking-wider">{label}</p>
+        <p className="text-[9px] sm:text-[11px] text-zinc-500 mt-1 sm:mt-1.5 truncate font-mono uppercase tracking-wider">{label}</p>
       </div>
 
       {/* Sparkline — 48px */}
-      <div className="w-full h-12">
+      <div className="w-full h-8 sm:h-12">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={sparkData}>
             <defs>
@@ -579,7 +579,7 @@ function EscalationCard({
               )}
 
               {/* AI Summary + Suggested Response (mock) */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="bg-zinc-950/60 rounded-md p-2.5 border border-white/[0.04]">
                   <p className="text-[9px] font-mono font-medium text-accent-400/60 mb-1">AI Summary</p>
                   <p className="text-[11px] text-zinc-400">
@@ -963,17 +963,17 @@ export default function AdminDashboard() {
   return (
     <div className={clsx("flex flex-col h-full overflow-hidden relative", isCrisis && "crisis-overlay")}>
       {/* ── Header ── */}
-      <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-white/[0.05] z-10 relative">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-accent-500/[0.06] border border-accent-500/[0.08] flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4 text-accent-400" />
+      <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 border-b border-white/[0.05] z-10 relative gap-2 sm:gap-0">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-accent-500/[0.06] border border-accent-500/[0.08] flex items-center justify-center">
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-400" />
           </div>
           <div>
-            <h2 className="text-[15px] font-display font-bold text-white tracking-tight">Command Center</h2>
-            <p className="text-[10px] text-zinc-500 leading-none font-mono">realtime · ticket-oversight</p>
+            <h2 className="text-[13px] sm:text-[15px] font-display font-bold text-white tracking-tight">Command Center</h2>
+            <p className="text-[9px] sm:text-[10px] text-zinc-500 leading-none font-mono">realtime · ticket-oversight</p>
           </div>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-end">
           {/* Last updated indicator */}
           <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-600">
             <RefreshCw className={clsx("w-3 h-3", secondsAgo < 3 && "animate-spin-slow")} />
@@ -994,17 +994,17 @@ export default function AdminDashboard() {
       <CrisisAlertBanner rate={escalationRate} count={escalated.length} />
 
       {/* ── Body ── */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 relative z-10">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-2 sm:py-3 space-y-2 sm:space-y-3 relative z-10">
         {/* Time range + Stats header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-[12px] font-display font-bold text-zinc-400 uppercase tracking-widest">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+          <h3 className="text-[11px] sm:text-[12px] font-display font-bold text-zinc-400 uppercase tracking-widest">
             Overview
           </h3>
           <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
         </div>
 
         {/* Stats row — staggered */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
           <StatCard
             label="Total Tickets"
             value={all.length}
@@ -1063,7 +1063,7 @@ export default function AdminDashboard() {
           <section>
             {/* Queue header with sort/filter */}
             <div className={clsx(
-              "flex items-center justify-between mb-2 pb-2 border-b border-white/[0.04]",
+              "flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 pb-2 border-b border-white/[0.04] gap-2 sm:gap-0",
               isCrisis && "border-b-red-500/20"
             )}>
               <div className="flex items-center gap-2">
@@ -1084,8 +1084,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Bulk actions */}
+              <div className="flex items-center gap-2 flex-wrap">
                 {selectedIds.size > 0 && (
                   <button
                     onClick={bulkResolve}
@@ -1171,7 +1170,7 @@ export default function AdminDashboard() {
         )}
 
         {/* ── Bottom panels: Activity Feed + KB Health + Leaderboard ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
           {/* Activity Feed — built from real tickets */}
           <div className="card-surface-dense p-3">
             <div className="flex items-center gap-1.5 mb-2">

@@ -66,6 +66,7 @@ export interface Database {
           assigned_to?: string | null;
           escalation_reason?: string | null;
           metadata?: Json;
+          updated_at?: string;
         };
       };
     };

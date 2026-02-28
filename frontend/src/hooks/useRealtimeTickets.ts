@@ -139,7 +139,8 @@ export function useRealtimeTickets(): UseRealtimeTicketsReturn {
       )
     );
     // Write to Supabase so all browsers sync via realtime
-    const { error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
       .from("tickets")
       .update({ status: "resolved", updated_at: now })
       .eq("id", ticketId);

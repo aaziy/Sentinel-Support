@@ -198,7 +198,7 @@ function NotificationBell({ tickets }: { tickets: Ticket[] }) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
-            className="absolute right-0 top-full mt-2 w-72 bg-zinc-900/95 backdrop-blur-2xl border border-white/[0.08] rounded-xl shadow-elevation-3 z-40 overflow-hidden"
+            className="absolute right-0 sm:right-0 top-full mt-2 w-[calc(100vw-24px)] sm:w-72 bg-zinc-900/95 backdrop-blur-2xl border border-white/[0.08] rounded-xl shadow-elevation-3 z-40 overflow-hidden"
           >
             <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.05]">
               <span className="text-[11px] font-semibold text-zinc-300">Notifications</span>
@@ -283,11 +283,11 @@ export default function AdminDashboardPage() {
       <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
 
       {/* ── Top bar ── */}
-      <header className="shrink-0 h-14 flex items-center justify-between px-5 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/[0.06] z-20">
+      <header className="shrink-0 h-auto sm:h-14 flex flex-wrap sm:flex-nowrap items-center justify-between px-3 sm:px-5 py-2 sm:py-0 bg-zinc-900/60 backdrop-blur-2xl border-b border-white/[0.06] z-20 gap-2 sm:gap-0">
         {/* Left: Logo */}
-        <div className="flex items-center gap-4">
-          <SentinelMark size={28} glow />
-          <SentinelWordmark />
+        <div className="flex items-center gap-2 sm:gap-4">
+          <SentinelMark size={24} glow />
+          <span className="hidden sm:inline"><SentinelWordmark /></span>
           <span className="hidden md:inline-flex text-[10px] font-mono text-accent-400/60 bg-accent-500/[0.06] border border-accent-500/[0.08] rounded px-2 py-0.5">
             v1.0 · admin
           </span>
@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
         </button>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 order-last sm:order-none">
           <NotificationBell tickets={all} />
 
           <button
